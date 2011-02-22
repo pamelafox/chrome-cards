@@ -1,0 +1,692 @@
+<!doctype html>
+<html>
+ <head>
+  <title>Chrome Cards</title>
+  <meta charset="utf-8">
+ </head>
+ <body>
+  <link href="http://fonts.googleapis.com/css?family=Cabin:bold" rel="stylesheet" type="text/css">
+  <div id="front" class="card"style="display:none">
+    <div id="front-question"></div>
+    <div id="front-multiplechoice">
+      <button id="front-button1"></button>
+      <button id="front-button2"></button>
+      <button id="front-button3"></button>
+    </div>
+    <div id="front-typein" class="yui-skin-sam">
+      <input id="front-input" autofocus="true">
+      <div id="front-autocomplete">
+    </div>
+    </div>
+    <div id="front-note" class="note">Hint: You can press 1, 2, or 3 on the keyboard to select an answer.</div>
+  </div>
+  
+  <div id="back" class="card" style="display:none">
+    <div id="back-result">
+      <img id="back-smiley" src="">
+      <span id="back-message"><span>
+    </div>
+    <div id="back-answer">
+      <div id="back-info">
+        <span id="back-answerlong"></span>
+        <div id="back-stat">You answered that correctly <span id="back-correct"></span>/<span id="back-total"></span> times.</div>
+      </div>
+      <img id="back-img" width="120" height="90">
+      <button id="back-nextbutton">NEXT</button>
+    </div>
+    <div id="back-note" class="note">Hint: You can press spacebar or enter to see the next card.</div>
+  </div>
+  
+  <div id="stats" class="card" style="display:none">
+    <div id="stats-unasked-note">There are <b><span id="stats-unasked"></span></b> cards you haven't seen yet.</div>
+    <div>Here are your stats for the <b><span id="stats-asked"></span></b> cards that you've answered:</div><br>
+    <div id="stats-legend">
+      <div id="stats-bad">Needs more practice</div>
+      <div id="stats-arrow">&darr;</div>
+      <div id="stats-good">Proven expert!</div>
+    </div>
+    <img id="stats-chart" src="">
+    <div id="stats-note" class="note">This graph is based on the <a href="javascript:void(0)" id="stats-leitnerlink">Leitner system</a> of learning.</div>
+  </div>
+  
+  <div id="options" class="card" style="display:none;">
+    <p>How do you want to answer the questions?</p>
+    <div id="options-list">
+    <label><input type="radio" name="answermode" value="multiple-choice">Multiple choice</label> <br>
+    <label><input type="radio" name="answermode" value="autocomplete">Type-in (with autocomplete)</label> <br>
+    <label><input type="radio" name="answermode" value="type-in">Type-in (no autocomplete)</label> <br>
+    </div>
+  </div>
+  
+  <div id="footer">
+  <a id="footer-options" href="javascript:void(0);" onclick="showOptions();">[Options]</a>
+  <span id="footer-cancellink" style="display:none">
+    Happy with current options?  <a href="javascript:void(0)" onclick="showNextCard();">Show next card.</a>
+  </span>
+  <span id="statslink" style="display:none">
+    Wondering how you're doing? <a href="javascript:void(0)" onclick="showStats();">Check your stats.</a>
+  </span>
+  <span id="cardlink" style="display:none">
+    Ready to keep going? <a href="javascript:void(0)" onclick="showNextCard();">Show next card.</a>
+  </div>
+  <style>
+.yui-skin-sam .yui-ac{position:relative;font-family:arial;font-size:100%;}.yui-skin-sam .yui-ac-input{position:absolute;width:100%;}.yui-skin-sam .yui-ac-container{position:absolute;top:1.6em;width:100%;}.yui-skin-sam .yui-ac-content{position:absolute;width:100%;border:1px solid #808080;background:#fff;overflow:hidden;z-index:9050;}.yui-skin-sam .yui-ac-shadow{position:absolute;margin:.3em;width:100%;background:#000;-moz-opacity:.10;opacity:.10;filter:alpha(opacity=10);z-index:9049;}.yui-skin-sam .yui-ac iframe{opacity:0;filter:alpha(opacity=0);padding-right:.3em;padding-bottom:.3em;}.yui-skin-sam .yui-ac-content ul{margin:0;padding:0;width:100%;}.yui-skin-sam .yui-ac-content li{margin:0;padding:2px 5px;cursor:default;white-space:nowrap;list-style:none;zoom:1;}.yui-skin-sam .yui-ac-content li.yui-ac-prehighlight{background:#B3D4FF;}.yui-skin-sam .yui-ac-content li.yui-ac-highlight{background:#426FD9;color:#FFF;}
+  
+  body {
+    background: black;
+    font-family: 'Cabin', sans-serif;
+    text-align: center;
+    width: 430px;
+    height: 305px;
+  }
+  
+  a {
+    color: #FF9654;
+  }
+  
+  a:visited, a:hover {
+    color: #CC611F
+  }
+  
+  button {
+    width: 50%;
+    height: 2.0833em;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+    padding: 0px 0.5em;
+    background: #FF9654;
+    border-radius: 3px 3px;
+    border-width: 0px;
+    color: white;
+    font-size: 1.2em;
+    font-weight: bold;
+    font-family: 'Cabin', sans-serif;
+    cursor: pointer;
+    overflow: visible;
+    vertical-align: middle;
+    white-space: nowrap; 
+    display: block;
+  }
+  
+  button:hover, button:focus {
+    background: #FF9654;
+    background-image:-webkit-gradient(linear,left top,left bottom,from(#FF9654),to(#CC611F));
+    outline:0;
+  }
+   
+  #footer {
+    margin-top: 10px;
+    text-align: right;
+    color: white;
+  }
+  
+  #footer a:hover,a:visited {
+    color: #FF9654;
+  }
+
+  #footer-options {
+    float: left;
+  }
+  
+  .card {
+    margin-left: 10px;
+    margin-top: 10px;
+    width: 400px;
+    height: 260px;
+    border: 4px solid #FF9654;
+    border-radius: 1.2em;
+    background: white;
+    position: relative;
+  }
+  
+  .note {
+    position: absolute;
+    bottom: 5px;
+    padding-left: 5px;
+    width: 100%;
+    font-size: .7em;
+    font-style: italic;
+  }
+
+  #options-list {
+    width: 80%;
+    margin: auto;
+    text-align: left;
+  }
+  
+  #front-question {
+    font-weight: bold;
+    font-size: 1.4em; 
+    margin-top: 10px;
+    margin-bottom: 20px;
+    color: #CC611F;
+  }
+  
+  #front-typein {
+    margin: auto;
+  }
+  
+  #front-typein, #front-autocomplete, #front-input {
+    width: 200px;
+    font-size: 1.3em;
+  }
+  
+  #front-input {
+    font-size: 1.3em;
+  }
+  
+  #front-autocomplete {
+    font-size: .9em;
+  }
+  
+  #back-result {
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: left;
+    color: white;
+    margin-top: 10px;
+    padding: 3px;
+    margin-bottom: 10px;
+  }
+  
+  #back-result img {
+    margin-right: 10px;
+    vertical-align: middle;
+    width: 50px;
+  }
+  
+  #back-country, #back-capital {
+    font-weight: bold;
+  }
+  
+  #back-answer {
+    clear: left;
+    font-size: 1.2em;
+    text-align: center;
+    height: 150px;
+    margin-top: 10px;
+    padding: 5px;
+  }
+  
+  #back-info {
+    padding-top: 20px;
+  }
+  
+  #back-answer img {
+    border: 2px solid #FF9654;
+    margin-bottom: 10px;
+  }
+  
+  #back-stat {
+    font-size: .5em;
+  }
+  
+  #back-img {
+    cursor: pointer;
+  }
+  
+  #back-nextbutton {
+    margin-top: 20px;
+  }
+  
+  #stats {
+    padding: 5px;
+    font-size: .9em;
+  }
+  
+  #stats-legend {
+    float: left;
+    width: 150px;
+    height: 130px;
+    font-weight: bold;
+  }
+  
+  #stats-bad {
+    color: red;
+  }
+  
+  #stats-good {
+    color: green;
+  }
+  
+  #stats-arrow {
+    height: 90px;
+    font-size: 4em;
+    padding-top: 15px;
+    color: #ffcc00;
+  }
+  
+  #stats-chart {
+    width: 200px;
+    height: 140px;
+  }
+  </style>
+ <script src="data.js"></script>
+ <script src="util.js"></script>
+ <script>
+// Local storage keys
+var LS_INIT = 'initialized';
+var LS_BUCKET = 'bucket';
+var LS_LASTASKED = 'last-asked';
+var LS_SPACEPRESSED = 'space-pressed';
+var LS_NUMPRESSED = 'num-pressed';
+var LS_MODE = 'answer-mode'
+// Number of milliseconds in a day
+var DAY_MS = 86400000;
+
+// Country data keyed by country code
+var cardsData = {};
+var cardsCategories = {};
+var currentCard;
+var autoComplete;
+
+function set(key, value) {
+  lscache.set(CARDS_PREFIX + key, value);
+}
+
+function get(key) {
+  return lscache.get(CARDS_PREFIX + key)  
+}
+
+function initBuckets() {
+  // Start everything in bucket 1
+  var bucket1 = [];
+  for (var i = 0; i < CARDS_DATA.length; i++) {
+    var datum = CARDS_DATA[i];
+    // Use '0' to represent never asked
+    bucket1.push({'id': datum.id, 'lastAsked': 0});
+  }
+  set(LS_BUCKET + 1, bucket1);
+  set(LS_BUCKET + 2, []);
+  set(LS_BUCKET + 3, []);
+  set(LS_BUCKET + 4, []);
+  set(LS_BUCKET + 5, []);
+  set(LS_INIT, 'true')
+}
+ 
+function pickNextCard() {
+  // Create an array of eligible cards
+  var eligibleCards = [];
+  
+  // Everything from bucket 1 goes in
+  // For the other buckets, it depends on when they were last asked and the bucket num
+  function getBucketCards(bucketNum, numDays) {
+    var bucket = get(LS_BUCKET + bucketNum);
+    var currentTime = (new Date()).getTime();
+    var eligibleCards = [];
+    for (var i = 0; i < bucket.length; i++) {
+      var datum = bucket[i];
+      datum.bucketNum = bucketNum;
+      if (numDays == 0 || ((currentTime - datum.lastAsked) > DAY_MS * numDays)) {
+        eligibleCards.push(datum);
+      }
+    }
+    return eligibleCards;
+  }
+  
+  eligibleCards = eligibleCards.concat(getBucketCards(1, 0));
+  eligibleCards = eligibleCards.concat(getBucketCards(2, 1));
+  eligibleCards = eligibleCards.concat(getBucketCards(3, 3));
+  eligibleCards = eligibleCards.concat(getBucketCards(4, 7));
+  eligibleCards = eligibleCards.concat(getBucketCards(5, 28));
+  
+  // Now, pick a random one
+  var randomNum = Math.floor(Math.random() * eligibleCards.length);
+  currentCard = eligibleCards[randomNum];
+  
+}
+
+function hideAll() {
+  getById('front').style.display = 'none';
+  getById('back').style.display = 'none';
+  getById('stats').style.display = 'none';
+  getById('options').style.display = 'none';
+  getById('statslink').style.display = 'none';
+  getById('cardlink').style.display = 'none';
+  getById('footer-cancellink').style.display = 'none';
+}
+
+function getById(id) {
+  return document.getElementById(id);
+}
+
+function trim(str, chars) {
+	return ltrim(rtrim(str, chars), chars);
+}
+ 
+function ltrim(str, chars) {
+	chars = chars || "\\s";
+	return str.replace(new RegExp("^[" + chars + "]+", "g"), "");
+}
+ 
+function rtrim(str, chars) {
+	chars = chars || "\\s";
+	return str.replace(new RegExp("[" + chars + "]+$", "g"), "");
+}
+
+function openLink(url) {
+  chrome.tabs.create({url: url})
+}
+
+function changeMode(e) {
+  var mode = e.target.value;
+  set(LS_MODE, mode);  
+  showNextCard();
+}
+
+function showNextCard() {
+  pickNextCard();
+  var cardData = cardsData[currentCard.id];
+  
+  var choices = [];
+  choices.push(cardData.answer)
+  
+  // Tend to ask from ones in the category, more confusing
+  var eligibleIds = cardsCategories[cardData.category];
+  // TODO: At random, put all IDs in there too
+  while (choices.length < 3) {
+    var randomNum = Math.floor(Math.random() * eligibleIds.length);
+    var eligibleId = eligibleIds[randomNum];
+    if (eligibleId != currentCard.id) {
+      choices.push(cardsData[eligibleId].answer);
+    }
+    eligibleIds.splice(randomNum, 1);
+  }
+  
+  // Randomize order of choices
+  function randOrd(){
+    return (Math.round(Math.random())-0.5);
+  }
+  choices.sort(randOrd);
+ 
+ 
+  getById('front-question').innerHTML = cardData.question;
+  
+  if (get(LS_MODE)=='multiple-choice') {
+    for (var i = 0; i < choices.length; i++) {
+      getById('front-button' + (i + 1)).innerHTML = choices[i];
+      getById('front-button' + (i + 1)).onclick = showAnswer;
+    }
+    getById('front-typein').style.display = 'none';
+    getById('front-multiplechoice').style.display = 'block';
+  } else {
+    getById('front-input').value = '';
+    getById('front-typein').style.display = 'block';
+    getById('front-multiplechoice').style.display = 'none';
+    
+    if (get(LS_MODE) == 'autocomplete') {
+      if (!autoComplete) {
+        var autoCompleteOptions = [];
+        for (var cardId in cardsData) {
+          autoCompleteOptions.push({'answer': cardsData[cardId].answer,
+                                    'search': accentFold(cardsData[cardId].answer)});
+        }
+      
+        var dataSource = new YAHOO.util.LocalDataSource(autoCompleteOptions); 
+        dataSource.responseSchema = {fields : ["answer", "search"]};
+        autoComplete = new YAHOO.widget.AutoComplete("front-input", "front-autocomplete", dataSource); 
+        autoComplete.autoHighlight = false;
+        autoComplete.queryMatchCase = false;
+        autoComplete.queryMatchContains = true;  
+        autoComplete.maxResultsDisplayed = 5;
+        autoComplete.filterResults = function(q, entries, resultObj, cb) {
+            var matches = [];
+            var re = new RegExp('\\b'+accentFold(q).replace('%20','\\s'), 'i');
+            for (var i = 0; i < entries.length; i++) {
+                if (re.test(entries[i]['search'])) {
+                    matches.push(entries[i]);
+                }
+            }
+            resultObj.results = matches;
+            return resultObj;
+        };
+        
+        // For some reason, we need to fake it out to get it to work the first time
+        window.setTimeout(function() { 
+          hideAll();
+          getById('back').style.display = 'block';
+          hideAll();
+          getById('front').style.display = 'block';
+        }, 2000)
+        
+      } else {
+        autoComplete.collapseContainer();
+      }
+    } else {
+      if (autoComplete) {
+        autoComplete.destroy();
+        autoComplete = null;
+      }
+    }
+  }
+  
+  getById('front-note').style.display = 'none';
+  if (!get(LS_NUMPRESSED)) {
+    getById('front-note').style.display = 'block';
+  }
+  
+  hideAll();
+  getById('front').style.display = 'block';
+  getById('statslink').style.display = 'block';
+}
+
+
+function showAnswer(e) {
+  if (!e) return;
+  
+  var answer = e.target.innerHTML;
+  var cardData = cardsData[currentCard.id];
+  
+  var cardStats = get(currentCard.id);
+  if (!cardStats) {
+    cardStats = {
+      lastAsked: null,
+      timesAsked: 0,
+      timesCorrect: 0,
+      timesIncorrect: 0
+    };
+  }
+  cardStats.lastAsked = new Date().getTime();
+  cardStats.timesAsked++;
+  
+  if ((answer == cardData.answer) || 
+      ((get(LS_MODE) != 'multiple-choice') && accentFold(answer).toLowerCase() == accentFold(cardData.answer).toLowerCase())) {
+    // Move to next bucket - max is bucket 5
+    var bucketNum = Math.min((currentCard.bucketNum + 1), 5);
+    cardStats.timesCorrect++;
+    // Show happy message
+    var imgUrl = 'smiley.png';
+    var color = '#00c62a';
+    var text = 'Yay, you got it!'; //TODO randomize
+  } else {
+    // Send back to bucket 1
+    var bucketNum = 1
+    // Increment incorrect counter
+    cardStats.timesIncorrect++;
+    // Show sad message
+    var imgUrl = 'frowney.png';
+    var color = 'red';
+    var text = 'Better luck next time!';
+  }
+  
+  // Remove from current bucket
+  var bucket = get(LS_BUCKET + currentCard.bucketNum);
+  for (var i = 0; i < bucket.length; i++) {
+    if (bucket[i].id == currentCard.id) {
+      bucket.splice(i, 1);
+    }
+  }
+  set(LS_BUCKET + currentCard.bucketNum, bucket);
+  
+  // Add to new bucket
+  var bucket = get(LS_BUCKET + bucketNum);
+  currentCard.lastAsked = (new Date()).getTime();
+  bucket.push(currentCard);
+  set(LS_BUCKET + bucketNum, bucket);
+  
+  // Save latest card statistics
+  set(currentCard.id, cardStats);
+
+  // Save last asked
+  set(LS_LASTASKED, (new Date()).getTime());
+  
+  // Show stuff
+  getById('back-result').style.backgroundColor = color;
+  getById('back-smiley').src = imgUrl;
+  getById('back-message').innerHTML = text;
+  
+  if (cardData.answerlong) {
+    getById('back-answerlong').innerHTML = cardData.answerlong;
+  } else {
+    getById('back-answerlong').innerHTML = 'The correct answer is: <b>' + cardData.answer + '</b>';
+  }
+  
+  getById('back-correct').innerHTML = cardStats.timesCorrect;
+  getById('back-total').innerHTML = cardStats.timesAsked;
+  
+  if (cardData.answerimage) {
+    getById('back-info').style.float = 'left';
+    getById('back-info').style.width = '250px';
+    getById('back-img').src = cardData.answerimage;
+    getById('back-img').style.display = 'block';
+    if (cardData.answerimagelink) {
+      getById('back-img').onclick = function() { 
+        openLink(cardData.answerimagelink);
+      };
+    }
+  } else {
+    getById('back-img').style.display = 'none';
+  }
+  
+  getById('back-nextbutton').onclick = function() {
+    showNextCard();
+  };
+  
+  getById('back-note').style.display = 'none';
+  if (!get(LS_SPACEPRESSED)) {
+    getById('back-note').style.display = 'block';
+  }
+  
+  hideAll();
+  getById('back').style.display = 'block';
+  getById('statslink').style.display = 'block';
+  chrome.browserAction.setBadgeText({text: ''});
+}
+
+function showStats() {
+  // Get a local copy of buckets
+  var buckets = [];
+  for (var i = 0; i < 5; i++) {
+    buckets[i] = get(LS_BUCKET + (i+1));
+  }
+  
+  // Go through bucket 1, figure out how many are unanswered
+  var numUnasked = 0;
+  for (var i = (buckets[0].length -1); i >= 0; i--) {
+    if (buckets[0][i].lastAsked == 0) {
+      numUnasked++;
+      buckets[0].splice(i, 1);
+    } 
+  }
+  
+  var bucketLengths = [];
+  var numAsked = 0;
+  for (var i = 0; i < buckets.length; i++) {
+    bucketLengths.push(buckets[i].length);
+    numAsked += buckets[i].length;
+  }
+  
+  var chartUrl = 'https://chart.googleapis.com/chart?cht=bhs&chs=200x140&chd=t:' + bucketLengths.join(',') + '&chco=FF0000|ff9c00|ffea00|ccff00|0ade00&chm=N,000000,0,-1,11';
+  
+  getById('stats-unasked-note').style.display = 'none';
+  if (numUnasked > 0) {
+    getById('stats-unasked').innerHTML = numUnasked;
+    getById('stats-unasked-note').style.display = 'block';
+  }
+  getById('stats-asked').innerHTML = numAsked;
+  getById('stats-chart').src = chartUrl;
+  getById('stats-leitnerlink').onclick = function() {
+    openLink('http://en.wikipedia.org/wiki/Leitner_system');
+  }
+  
+  hideAll();
+  getById('stats').style.display = 'block';
+  getById('cardlink').style.display = 'block';
+}
+
+function showOptions() {
+  var modeOptions = getById('options').getElementsByTagName('input');
+  var currentMode = get(LS_MODE);
+  for (var i = 0; i < modeOptions.length; i++) {
+    modeOptions[i].onclick = changeMode;
+    if (modeOptions[i].value == currentMode) {
+      modeOptions[i].checked = true;
+    }
+  }
+  
+  hideAll();
+  getById('options').style.display = 'block';
+  getById('footer-cancellink').style.display = 'block';
+}
+
+function init() {
+  
+  if (!get(LS_INIT)) {
+    initBuckets();
+  }
+  
+  if(!get(LS_MODE)) {
+    set(LS_MODE, 'multiple-choice');
+  }
+  
+  for (var i = 0; i < CARDS_DATA.length; i++) {
+    var datum = CARDS_DATA[i];
+    cardsData[datum.id] = datum;
+    cardsData[datum.id].answer = trim(datum.answer);
+    if (!cardsCategories[datum.category]) {
+      cardsCategories[datum.category] = [];
+    }
+    cardsCategories[datum.category].push(datum.id);
+  }
+  
+  showNextCard();
+  
+  
+  document.onkeyup = function(e) {
+    var e=window.event || e;
+    if (getById('back').style.display == 'block') {
+      if (e.keyCode == 78 || e.keyCode == 32 || e.keyCode == 13) {
+        showNextCard();
+        set(LS_SPACEPRESSED, 'true');
+        return;
+      }
+    }
+    
+    if (getById('front').style.display == 'block') {
+      if (get(LS_MODE)=='multiple-choice') {
+        if (e.keyCode == 49) { // 1
+          set(LS_NUMPRESSED, 'true');
+          getById('front-button1').onclick({target:getById('front-button1')});
+        } else if (e.keyCode == 50) { // 2
+          set(LS_NUMPRESSED, 'true');
+          getById('front-button2').onclick({target:getById('front-button2')});
+        } else if (e.keyCode == 51) { // 3
+          set(LS_NUMPRESSED, 'true');
+          getById('front-button3').onclick({target:getById('front-button3')});
+        }
+      } else {
+        if (e.keyCode == 13 ) { // Enter
+          showAnswer({target: {innerHTML: getById('front-input').value}});
+        }
+      }
+      return;
+    }
+  };
+}
+
+init();
+ </script>
+ </body>
+</html>
+     

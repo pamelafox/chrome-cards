@@ -1,0 +1,20 @@
+This code can be used to create any Flash Cards Chrome Extension.
+Feel free to use it to make your own, or ping me and ask for a particular deck.
+(If I think others will be interested and I can get the data, I'm likely to do it.)
+
+How it works:
+- Each extension shares common files: popup.html, background.html, and a few PNG files.
+- Those files are copied into each extension subfolder via copycommon.sh
+- Each extension should define its own: manifest.json, browser_icon.png, icon_128.png, data.js
+- The manifest.json should be like the other manifest's except different in title/description.
+- The icons should signify the topic somehow, to help in distinguishing the icon on the browser bar.
+- The data.js defines two variables: CARDS_PREFIX and CARDS_DATA.
+- CARDS_PREFIX should be something like "german-", "capitals-". It is used to prefix localStorage keys.
+- CARDS_DATA should be an array of objects describing cards, and each object should have
+"id", "category", "question", and "answer" keys. The id should be unique in the deck.
+- To easily output that JSON format, create a Google spreadsheet with your data and the columns.
+   Example: https://spreadsheets3.google.com/pub?hl=en&hl=en&key=0Ah0xU81penP1cDlwZHdzYWkyaERQYnFFbV9tXzFLZWc&output=html
+- Insert this gadget in the spreadsheet, selecting the relevant row/columns as data source:
+  http://pamelafox-samplecode.googlecode.com/svn/trunk/spreadsheetsconverter/spreadsheetsconverter.xml?nocache=true 
+- Copy and paste the output into data.js
+

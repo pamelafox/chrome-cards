@@ -1,0 +1,14 @@
+{
+  "name": "Spanish Flash Cards",
+  "version": "0.92",
+  "description": "An easy way to learn spanish vocabulary in the comfort of your browser.",
+  "permissions": ["tabs"],
+  "background_page": "background.html",
+  "icons": {
+      "128": "icon_128.png" },
+  "browser_action": {
+      "default_title": "Show the next flash card!",
+      "default_icon": "browser_icon.png",
+      "popup": "popup.html"
+  }
+}
