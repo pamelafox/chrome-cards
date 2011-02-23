@@ -1,7 +1,7 @@
 {
-  "name": "Spanish Flash Cards",
-  "version": "0.92",
-  "description": "An easy way to learn spanish vocabulary in the comfort of your browser.",
+  "name": "QuizCards: Spanish Vocabulary",
+  "version": "0.94",
+  "description": "Use these interactive browser-based flash cards to easily learn Spanish vocabulary.",
   "permissions": ["tabs"],
   "background_page": "background.html",
   "icons": {

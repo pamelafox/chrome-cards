@@ -19,3 +19,9 @@ for file in "${files[@]}"
   do
    cp "/Users/pamelafox/chrome-cards/$file" "$destination/$file"
   done
+
+destination="/Users/pamelafox/chrome-cards/uscapitals/"
+for file in "${files[@]}"
+  do
+   cp "/Users/pamelafox/chrome-cards/$file" "$destination/$file"
+  done
