@@ -386,6 +386,7 @@ function changeMode(e) {
 function showNextCard() {
   pickNextCard();
   var cardData = cardsData[currentCard.id];
+  if (!cardData) pickNextCard(); //Just in case
   
   var choices = [];
   choices.push(cardData.answer)
