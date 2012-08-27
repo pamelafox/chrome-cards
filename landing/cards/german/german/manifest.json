@@ -1,7 +1,7 @@
 {
-  "name": "QuizCards: Spanish Vocabulary",
-  "version": "0.95",
-  "description": "Use these interactive browser-based flash cards to easily learn Spanish vocabulary.",
+  "name": "QuizCards: German Vocabulary",
+  "version": "0.94",
+  "description": "Use these interactive browser-based flash cards to easily learn German vocabulary.",
   "permissions": ["tabs"],
   "background_page": "background.html",
   "icons": {

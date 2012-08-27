@@ -2,26 +2,19 @@
 
 declare -a files=( "background.html" "popup.html" "smiley.png" "frowney.png" "util.js");
 
-destination="/Users/pamelafox/chrome-cards/capitals/"
-for file in "${files[@]}"
-  do
-   cp "/Users/pamelafox/chrome-cards/$file" "$destination/$file"
-  done
+basefolder="/Users/pamelafox/chrome-cards"
+appfolder="$basefolder/landing/cards"
 
-destination="/Users/pamelafox/chrome-cards/spanish/"
-for file in "${files[@]}"
-  do
-   cp "/Users/pamelafox/chrome-cards/$file" "$destination/$file"
-  done
+function copyfolder {
+  for file in "${files[@]}"
+    do
+     cp "$basefolder/$file" "$basefolder/$1/$file"
+    done
+  cp -rf "$basefolder/$1" "$appfolder/$1"
+  cp "$appfolder/$1/popup.html" "$appfolder/$1/index.html"
+}
 
-destination="/Users/pamelafox/chrome-cards/german/"
-for file in "${files[@]}"
-  do
-   cp "/Users/pamelafox/chrome-cards/$file" "$destination/$file"
-  done
-
-destination="/Users/pamelafox/chrome-cards/uscapitals/"
-for file in "${files[@]}"
-  do
-   cp "/Users/pamelafox/chrome-cards/$file" "$destination/$file"
-  done
+copyfolder "capitals"
+copyfolder "uscapitals"
+copyfolder "spanish"
+copyfolder "german"

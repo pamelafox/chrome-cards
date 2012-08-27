@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+    <!-- Show a "Please Upgrade" box to both IE7 and IE6 users (Edit to IE 6 if you just want to show it to IE6 users) - jQuery will load the content from js/ie.html into the div -->
+    <!--[if lte IE 7]>
+        <div class="ie grid_7"></div>
+    <![endif]-->
+    
+    <div id="main" class="grid_8 alpha">
+      <p><b>Easily learn new languages and facts.</b></p>
+      
+      <div id="feature1" class="feature" style="display:block">
+        <img src="/img/screenshot_question.png">
+        <p>Answer interactive flash cards from the comfort of your browser! Either use the Chrome extensions for an icon on your toolbar or use them full-screen from this site.
+        </p>
+        <button onclick="seeNext();">See more >></button>
+      </div>
+    
+      <div id="feature2" class="feature">
+        <img src="/img/screenshot_typein.png">
+        <p>Pick from three different modes of question answering to suit your knowledge level: multiple-choice, type-in, or type-in with autocomplete.
+        </p>
+        <button onclick="seeNext();">See more >></button>
+      </div>
+      
+      <div id="feature3" class="feature">
+        <img src="/img/screenshot_answer.png">
+        <p>As you answer the cards, the system will track what you get right and wrong, and show you the cards that you need to practice more. 
+        </p>
+        <button onclick="seeNext();">See more >></button>
+      </div>
+      
+      <div id="feature4" class="feature">
+        <img src="/img/screenshot_stats.png">
+        <p>You can check your stats to see how you're doing with the deck. The stats are based the <a href="http://en.wikipedia.org/wiki/Leitner_system">"Leitner system"</a>, which put cards in different stacks depending on how much you need to practice them.
+        </p>
+        <p>Sound good? <b>Try them out yourselves</b> by following the links in the sidebar.</p>
+      </div>
+      
+    </div>
+    
+    <div id="sidebar" class="grid_4 omega">
+      <aside id="recent_section" class="widget">
+        <h3>Start Now:</h3>
+        <ul>
+          <li>Spanish Vocabulary
+           <br>
+           <span style="font-size:14px">
+            <a href="https://chrome.google.com/webstore/detail/dpcnddijflmmfjjlkcnmmbjhbkdnbhhk">Chrome Extension</a> |
+            <a href="cards/spanish/index.html">Website</a>
+           </span>
+          </li>
+          <li>German Vocabulary
+           <br>
+           <span style="font-size:14px">
+            <a href="https://chrome.google.com/webstore/detail/lhjipgfbpbjcmndmdhjhpoeapdadfhmk">Chrome Extension</a> |
+            <a href="cards/german/index.html">Website</a>
+           </span>
+          </li>
+          <li>World Capitals
+           <br>
+           <span style="font-size:14px">
+            <a href="https://chrome.google.com/webstore/detail/nikenaeclebghemphbkfedjndafkfjan">Chrome Extension</a> |
+            <a href="cards/capitals/index.html">Website</a>
+           </span>
+          </li>
+          <li>US Capitals
+           <br>
+           <span style="font-size:14px">
+            <a href="https://chrome.google.com/webstore/detail/jlhcfbghojkmhebppenhjhhjejdcblja">Chrome Extension</a> |
+            <a href="cards/uscapitals/index.html">Website</a>
+           </span>
+          </li>
+        </ul>
+        <p>Looking for something else? <a href="http://www.google.com/profiles/u/0/pamela.fox/contactme">Let me know!</a></p>
+      </aside>
+    </div>
+
+{% endblock %}
+{% block script %}
+<script>
+function getEl(id) {
+  return document.getElementById(id);
+}
+
+function seeNext() {
+  var featureDivs = [getEl('feature1'), getEl('feature2'), getEl('feature3'), getEl('feature4')];
+  for (var i = 0; i < featureDivs.length; i++) {
+    if (featureDivs[i].style.display == 'block') {
+      currentDivNum = i;
+      console.log('found it')
+    }
+    featureDivs[i].style.display = 'none';
+  }
+  if (currentDivNum == (featureDivs.length-1)) {
+    featureDivs[0].style.display = 'block';
+  } else {
+    featureDivs[currentDivNum+1].style.display = 'block';
+  }
+}
+</script>
+{% endblock %}

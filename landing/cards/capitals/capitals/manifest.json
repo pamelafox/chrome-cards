@@ -1,11 +1,11 @@
 {
-  "name": "QuizCards: Spanish Vocabulary",
-  "version": "0.95",
-  "description": "Use these interactive browser-based flash cards to easily learn Spanish vocabulary.",
+  "name": "QuizCards: World Capitals",
+  "version": "0.985",
+  "description": "Use these interactive browser-based flash cards to easily learn the world capitals.",
   "permissions": ["tabs"],
   "background_page": "background.html",
-  "icons": {
-      "128": "icon_128.png" },
+  "icons": { 
+            "128": "icon_128.png" },
   "browser_action": {
       "default_title": "Show the next flash card!",
       "default_icon": "browser_icon.png",
