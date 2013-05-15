@@ -2,7 +2,7 @@
 
 declare -a files=( "background.html" "popup.html" "smiley.png" "frowney.png" "util.js");
 
-basefolder="/Users/pamelafox/chrome-cards"
+basefolder="/Users/pamelafox/Dropbox/chrome-cards"
 appfolder="$basefolder/landing/cards"
 
 function copyfolder {
@@ -14,7 +14,8 @@ function copyfolder {
   cp "$appfolder/$1/popup.html" "$appfolder/$1/index.html"
 }
 
-copyfolder "capitals"
-copyfolder "uscapitals"
-copyfolder "spanish"
-copyfolder "german"
+#copyfolder "capitals"
+#copyfolder "uscapitals"
+#copyfolder "spanish"
+#copyfolder "german"
+copyfolder "behavioralecon"
