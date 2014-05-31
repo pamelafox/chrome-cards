@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+ <head>
+  <title>Quiz Cards</title>
+  <meta charset="utf-8">
+ </head>
+ <body>
+  <link href="http://fonts.googleapis.com/css?family=Cabin:bold" rel="stylesheet" type="text/css">
+  <div id="front" class="card"style="display:none">
+    <div id="front-question"></div>
+    <div id="front-multiplechoice">
+      <button id="front-button1"></button>
+      <button id="front-button2"></button>
+      <button id="front-button3"></button>
+    </div>
+    <div id="front-typein" class="yui-skin-sam">
+      <input id="front-input" autofocus="true">
+      <div id="front-autocomplete">
+    </div>
+    </div>
+    <div id="front-note" class="note">Hint: You can press 1, 2, or 3 on the keyboard to select an answer.</div>
+  </div>
+  
+  <div id="back" class="card" style="display:none">
+    <div id="back-result">
+      <img id="back-smiley" src="">
+      <span id="back-message"><span>
+    </div>
+    <div id="back-answer">
+      <div id="back-info">
+        <span id="back-answerlong"></span>
+        <div id="back-stat">You answered that correctly <span id="back-correct"></span>/<span id="back-total"></span> times.</div>
+      </div>
+      <img id="back-img" width="120" height="70">
+      <button id="back-nextbutton">NEXT</button>
+    </div>
+    <div id="back-note" class="note">Hint: You can press spacebar or enter to see the next card.</div>
+  </div>
+  
+  <div id="stats" class="card" style="display:none">
+    <div id="stats-unasked-note">There are <b><span id="stats-unasked"></span></b> cards you haven't seen yet.</div>
+    <div>Here are your stats for the <b><span id="stats-asked"></span></b> cards that you've answered:</div><br>
+    <div id="stats-legend">
+      <div id="stats-bad">Needs more practice</div>
+      <div id="stats-arrow">&darr;</div>
+      <div id="stats-good">Proven expert!</div>
+    </div>
+    <img id="stats-chart" src="">
+    <div id="stats-note" class="note">This graph is based on the <a href="javascript:void(0)" id="stats-leitnerlink">Leitner system</a> of learning.</div>
+  </div>
+  
+  <div id="options" class="card" style="display:none;">
+    <p>How do you want to answer the questions?</p>
+    <div id="options-list">
+    <label><input type="radio" name="answermode" value="multiple-choice">Multiple choice</label> <br>
+    <label><input type="radio" name="answermode" value="autocomplete">Type-in (with autocomplete)</label> <br>
+    <label><input type="radio" name="answermode" value="type-in">Type-in (no autocomplete)</label> <br>
+    </div>
+  </div>
+  
+  <div id="footer" style="display:none;">
+  <a id="footer-options" href="javascript:void(0);" onclick="showOptions();">[Options]</a>
+  <span id="footer-cancellink" style="display:none">
+    Happy with current options?  <a id="cancellink-click" href="javascript:void(0)" onclick="showNextCard();">Show next card.</a>
+  </span>
+  <span id="statslink" style="display:none">
+    Wondering how you're doing? <a id="statslink-click" href="javascript:void(0)" onclick="showStats();">Check your stats.</a>
+  </span>
+  <span id="cardlink" style="display:none">
+    Ready to keep going? <a id="cardlink-click" href="javascript:void(0)" onclick="showNextCard();">Show next card.</a>
+  </div>
+  <style>
+  /*
+.yui-skin-sam .yui-ac{position:relative;}
+
+.yui-skin-sam .yui-ac-input{position:relative;width:100%;}
+.yui-skin-sam .yui-ac-container{position:absolute;top:1.6em;width:100%;}
+*/
+.yui-skin-sam .yui-ac-content{position:absolute;width:100%;border:1px solid #808080;background:#fff;overflow:hidden;z-index:9050;}
+.yui-skin-sam .yui-ac-shadow{position:absolute;margin:.3em;width:100%;background:#000;-moz-opacity:.10;opacity:.10;filter:alpha(opacity=10);z-index:9049;}.yui-skin-sam .yui-ac iframe{opacity:0;filter:alpha(opacity=0);padding-right:.3em;padding-bottom:.3em;}.yui-skin-sam .yui-ac-content ul{margin:0;padding:0;width:100%;}.yui-skin-sam .yui-ac-content li{margin:0;padding:2px 5px;cursor:default;white-space:nowrap;list-style:none;zoom:1;}.yui-skin-sam .yui-ac-content li.yui-ac-prehighlight{background:#B3D4FF;}.yui-skin-sam .yui-ac-content li.yui-ac-highlight{background:#426FD9;color:#FFF;}
+  
+  body {
+    background: black;
+    font-family: 'Cabin', sans-serif;
+    text-align: center;
+    height: 100%;
+    box-sizing: border-box;
+    min-width: 460px;
+    min-height: 305px;
+  }
+  
+  a {
+    color: #FF9654;
+  }
+  
+  a:visited, a:hover {
+    color: #CC611F
+  }
+  
+  button {
+    width: 50%;
+    height: 2.0833em;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+    padding: 0px 0.5em;
+    background: #FF9654;
+    border-radius: 3px 3px;
+    border-width: 0px;
+    color: white;
+    font-size: 1.2em;
+    font-weight: bold;
+    font-family: 'Cabin', sans-serif;
+    cursor: pointer;
+    overflow: visible;
+    vertical-align: middle;
+    white-space: nowrap; 
+    display: block;
+  }
+  
+  button:hover, button:focus {
+    background: #FF9654;
+    background-image:-webkit-gradient(linear,left top,left bottom,from(#FF9654),to(#CC611F));
+    outline:0;
+  }
+   
+  #footer {
+    bottom: 4%;
+    text-align: right;
+    color: white;
+    position: absolute;
+    left: 3%;
+    width: 90%;
+  }
+  
+  #footer a:hover,a:visited {
+    color: #FF9654;
+  }
+
+  #footer-options {
+    float: left;
+  }
+  
+  .card {
+    margin-left: 10px;
+    margin-top: 10px;
+    width: 92%;
+    height: 80%;
+    border: 4px solid #FF9654;
+    border-radius: 1.2em;
+    background: white;
+    position: absolute;
+  }
+  
+  .note {
+    position: absolute;
+    bottom: 5px;
+    padding-left: 5px;
+    width: 100%;
+    font-size: .7em;
+    font-style: italic;
+  }
+
+  #options-list {
+    width: 80%;
+    margin: auto;
+    text-align: left;
+  }
+  
+  #front-question {
+    font-weight: bold;
+    font-size: 1.4em; 
+    margin-top: 10px;
+    margin-bottom: 20px;
+    color: #CC611F;
+  }
+  
+  #front-question img {
+    max-height: 200px;
+  }
+
+  #front-typein {
+    margin: auto;
+    width: 80%;
+  }
+
+  #front-input {
+    font-size: 2em;
+  }
+
+  #front-autocomplete, #front-input {
+    width: 100%;
+  }
+  
+  #back-result {
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: left;
+    color: white;
+    margin-top: 5%;
+    padding: 3px;
+    margin-bottom: 10px;
+  }
+  
+  #back-result img {
+    margin-right: 10px;
+    vertical-align: middle;
+    width: 50px;
+  }
+  
+  #back-country, #back-capital {
+    font-weight: bold;
+  }
+  
+  #back-answer {
+    clear: left;
+    font-size: 1.2em;
+    text-align: center;
+    height: 150px;
+    margin-top: 10px;
+    padding: 5px;
+  }
+  
+  #back-info {
+    padding-top: 20px;
+  }
+  
+  #back-answer img {
+    border: 2px solid #FF9654;
+    margin-bottom: 10px;
+  }
+  
+  #back-stat {
+    font-size: .5em;
+  }
+  
+  #back-img {
+    cursor: pointer;
+  }
+  
+  #back-nextbutton {
+    margin-top: 20px;
+  }
+  
+  #stats {
+    padding: 5px;
+    font-size: .9em;
+  }
+  
+  #stats-legend {
+    float: left;
+    width: 40%;
+    height: 90%;
+    font-weight: bold;
+    text-align: right;
+    margin-right: 20px;
+  }
+  
+  #stats-bad {
+    color: red;
+  }
+  
+  #stats-good {
+    color: green;
+  }
+  
+  #stats-arrow {
+    height: 90px;
+    font-size: 4em;
+    padding-top: 15px;
+    color: #ffcc00;
+  }
+  
+  #stats-chart {
+    width: 200px;
+    height: 140px;
+    float: left;
+  }
+  </style>
+ <script src="util.js"></script>
+ <script src="popup.js"></script>
+ </body>
+</html>
+     
