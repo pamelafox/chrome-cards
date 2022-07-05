@@ -153,8 +153,8 @@ async function showNextCard() {
   choices.sort(randOrd);
  
   getById('front-question').innerHTML = cardData.question;
-  
-  if (await get(LS_MODE) == 'multiple-choice') {
+  const mode = await get(LS_MODE); 
+  if (mode == 'multiple-choice') {
     for (var i = 0; i < choices.length; i++) {
       getById('front-button' + (i + 1)).innerHTML = choices[i];
       getById('front-button' + (i + 1)).onclick = showAnswer;
@@ -166,7 +166,7 @@ async function showNextCard() {
     getById('front-typein').style.display = 'block';
     getById('front-multiplechoice').style.display = 'none';
     
-    if (await get(LS_MODE) == 'autocomplete') {
+    if (mode == 'autocomplete') {
       if (!autoComplete) {
         var autoCompleteOptions = [];
         for (var cardId in cardsData) {
@@ -213,13 +213,16 @@ async function showNextCard() {
   }
   
   getById('front-note').style.display = 'none';
-  if (!await get(LS_NUMPRESSED)) {
+  if (mode == 'multiple-choice' && !await get(LS_NUMPRESSED)) {
     getById('front-note').style.display = 'block';
   }
   
   hideAll();
   getById('front').style.display = 'block';
   getById('statslink').style.display = 'block';
+  if (mode != 'multiple-choice') {
+    getById('front-input').focus();
+  }
 }
 
 
