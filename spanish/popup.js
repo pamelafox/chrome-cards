@@ -1,3 +1,4 @@
+/* global CARDS_PREFIX, CARDS_DATA, YAHOO, accentFold */
 // Local storage keys
 var LS_INIT = 'initialized';
 var LS_BUCKET = 'bucket';
@@ -14,15 +15,20 @@ var cardsCategories = {};
 var currentCard;
 var autoComplete;
 
-function set(key, value) {
-  lscache.set(CARDS_PREFIX + key, value);
+async function set(items) {
+  for (const key in items) {
+    items[CARDS_PREFIX + key] = items[key];
+    delete items[key];
+  }
+  await chrome.storage.local.set(items);
 }
 
-function get(key) {
-  return lscache.get(CARDS_PREFIX + key)  
+async function get(key) {
+  const result = await chrome.storage.local.get(CARDS_PREFIX + key)  
+  return result[CARDS_PREFIX + key]; 
 }
 
-function initBuckets() {
+async function initBuckets() {
   // Start everything in bucket 1
   var bucket1 = [];
   for (var i = 0; i < CARDS_DATA.length; i++) {
@@ -30,22 +36,24 @@ function initBuckets() {
     // Use '0' to represent never asked
     bucket1.push({'id': datum.id, 'lastAsked': 0});
   }
-  set(LS_BUCKET + 1, bucket1);
-  set(LS_BUCKET + 2, []);
-  set(LS_BUCKET + 3, []);
-  set(LS_BUCKET + 4, []);
-  set(LS_BUCKET + 5, []);
-  set(LS_INIT, 'true')
+  const items = {};
+  items[LS_BUCKET + 1] = bucket1;
+  items[LS_BUCKET + 2] = [];
+  items[LS_BUCKET + 3] = [];
+  items[LS_BUCKET + 4] = [];
+  items[LS_BUCKET + 5] = [];
+  items[LS_INIT] = 'true';
+  await set(items);
 }
  
-function pickNextCard() {
+async function pickNextCard() {
   // Create an array of eligible cards
   var eligibleCards = [];
   
   // Everything from bucket 1 goes in
   // For the other buckets, it depends on when they were last asked and the bucket num
-  function getBucketCards(bucketNum, numDays) {
-    var bucket = get(LS_BUCKET + bucketNum);
+  async function getBucketCards(bucketNum, numDays) {
+    var bucket = await get(LS_BUCKET + bucketNum);
     var currentTime = (new Date()).getTime();
     var eligibleCards = [];
     for (var i = 0; i < bucket.length; i++) {
@@ -63,11 +71,11 @@ function pickNextCard() {
   var counter = 0;
   var days = [0, 1, 3, 7, 28];
   while (eligibleCards.length == 0 && counter < 5) {
-    eligibleCards = eligibleCards.concat(getBucketCards(1, days[0]));
-    eligibleCards = eligibleCards.concat(getBucketCards(2, days[1])); //0 on iteration 1
-    eligibleCards = eligibleCards.concat(getBucketCards(3, days[2])); // 0 on iteration 2
-    eligibleCards = eligibleCards.concat(getBucketCards(4, days[3])); // 0 on iteration 3
-    eligibleCards = eligibleCards.concat(getBucketCards(5, days[4])); // 0 on iteration 4
+    eligibleCards = eligibleCards.concat(await getBucketCards(1, days[0]));
+    eligibleCards = eligibleCards.concat(await getBucketCards(2, days[1])); // 0 on iteration 1
+    eligibleCards = eligibleCards.concat(await getBucketCards(3, days[2])); // 0 on iteration 2
+    eligibleCards = eligibleCards.concat(await getBucketCards(4, days[3])); // 0 on iteration 3
+    eligibleCards = eligibleCards.concat(await getBucketCards(5, days[4])); // 0 on iteration 4
     days.unshift(0);
     counter++;
   }
@@ -93,33 +101,33 @@ function getById(id) {
 }
 
 function trim(str, chars) {
-	return ltrim(rtrim(str, chars), chars);
+  return ltrim(rtrim(str, chars), chars);
 }
  
 function ltrim(str, chars) {
-	chars = chars || "\\s";
-	return str.replace(new RegExp("^[" + chars + "]+", "g"), "");
+  chars = chars || "\\s";
+  return str.replace(new RegExp("^[" + chars + "]+", "g"), "");
 }
  
 function rtrim(str, chars) {
-	chars = chars || "\\s";
-	return str.replace(new RegExp("[" + chars + "]+$", "g"), "");
+  chars = chars || "\\s";
+  return str.replace(new RegExp("[" + chars + "]+$", "g"), "");
 }
 
 function openLink(url) {
   chrome.tabs.create({url: url})
 }
 
-function changeMode(e) {
+async function changeMode(e) {
   var mode = e.target.value;
-  set(LS_MODE, mode);  
-  showNextCard();
+  await set({[LS_MODE]: mode});  
+  await showNextCard();
 }
 
-function showNextCard() {
-  pickNextCard();
+async function showNextCard() {
+  await pickNextCard();
   var cardData = cardsData[currentCard.id];
-  if (!cardData) pickNextCard(); //Just in case
+  if (!cardData) await pickNextCard(); // Just in case
   
   var choices = [];
   choices.push(cardData.answer)
@@ -144,10 +152,9 @@ function showNextCard() {
   }
   choices.sort(randOrd);
  
- 
   getById('front-question').innerHTML = cardData.question;
   
-  if (get(LS_MODE)=='multiple-choice') {
+  if (await get(LS_MODE) == 'multiple-choice') {
     for (var i = 0; i < choices.length; i++) {
       getById('front-button' + (i + 1)).innerHTML = choices[i];
       getById('front-button' + (i + 1)).onclick = showAnswer;
@@ -159,7 +166,7 @@ function showNextCard() {
     getById('front-typein').style.display = 'block';
     getById('front-multiplechoice').style.display = 'none';
     
-    if (get(LS_MODE) == 'autocomplete') {
+    if (await get(LS_MODE) == 'autocomplete') {
       if (!autoComplete) {
         var autoCompleteOptions = [];
         for (var cardId in cardsData) {
@@ -174,7 +181,7 @@ function showNextCard() {
         autoComplete.queryMatchCase = false;
         autoComplete.queryMatchContains = true;  
         autoComplete.maxResultsDisplayed = 5;
-        autoComplete.filterResults = function(q, entries, resultObj, cb) {
+        autoComplete.filterResults = function(q, entries, resultObj) {
             var matches = [];
             var re = new RegExp('\\b'+accentFold(q).replace('%20','\\s'), 'i');
             for (var i = 0; i < entries.length; i++) {
@@ -206,7 +213,7 @@ function showNextCard() {
   }
   
   getById('front-note').style.display = 'none';
-  if (!get(LS_NUMPRESSED)) {
+  if (!await get(LS_NUMPRESSED)) {
     getById('front-note').style.display = 'block';
   }
   
@@ -216,13 +223,13 @@ function showNextCard() {
 }
 
 
-function showAnswer(e) {
+async function showAnswer(e) {
   if (!e) return;
   
   var answer = e.target.innerHTML;
   var cardData = cardsData[currentCard.id];
   
-  var cardStats = get(currentCard.id);
+  var cardStats = await get(currentCard.id);
   if (!cardStats) {
     cardStats = {
       lastAsked: null,
@@ -233,47 +240,50 @@ function showAnswer(e) {
   }
   cardStats.lastAsked = new Date().getTime();
   cardStats.timesAsked++;
-  
+
+  let bucketNum, imgUrl, color, text; 
   if ((answer == cardData.answer) || 
-      ((get(LS_MODE) != 'multiple-choice') && accentFold(answer).toLowerCase() == accentFold(cardData.answer).toLowerCase())) {
+      ((await get(LS_MODE) != 'multiple-choice') && accentFold(answer).toLowerCase() == accentFold(cardData.answer).toLowerCase())) {
     // Move to next bucket - max is bucket 5
-    var bucketNum = Math.min((currentCard.bucketNum + 1), 5);
+    bucketNum = Math.min((currentCard.bucketNum + 1), 5);
     cardStats.timesCorrect++;
     // Show happy message
-    var imgUrl = 'smiley.png';
-    var color = '#00c62a';
-    var text = 'Yay, you got it!'; //TODO randomize
+    imgUrl = 'smiley.png';
+    color = '#00c62a';
+    text = 'Yay, you got it!'; //TODO randomize
   } else {
     // Send back to bucket 1
-    var bucketNum = 1
+    bucketNum = 1
     // Increment incorrect counter
     cardStats.timesIncorrect++;
     // Show sad message
-    var imgUrl = 'frowney.png';
-    var color = 'red';
-    var text = 'Better luck next time!';
+    imgUrl = 'frowney.png';
+    color = 'red';
+    text = 'Better luck next time!';
   }
   
   // Remove from current bucket
-  var bucket = get(LS_BUCKET + currentCard.bucketNum);
-  for (var i = 0; i < bucket.length; i++) {
-    if (bucket[i].id == currentCard.id) {
-      bucket.splice(i, 1);
+  var bucketCurrent = await get(LS_BUCKET + currentCard.bucketNum);
+  for (var i = 0; i < bucketCurrent.length; i++) {
+    if (bucketCurrent[i].id == currentCard.id) {
+      bucketCurrent.splice(i, 1);
     }
   }
-  set(LS_BUCKET + currentCard.bucketNum, bucket);
-  
   // Add to new bucket
-  var bucket = get(LS_BUCKET + bucketNum);
+  var bucketNew = await get(LS_BUCKET + bucketNum);
   currentCard.lastAsked = (new Date()).getTime();
-  bucket.push(currentCard);
-  set(LS_BUCKET + bucketNum, bucket);
-  
-  // Save latest card statistics
-  set(currentCard.id, cardStats);
+  bucketNew.push(currentCard);
 
-  // Save last asked
-  set(LS_LASTASKED, (new Date()).getTime());
+  await set({
+       // Save current bucket (with card removed)
+       [LS_BUCKET + currentCard.bucketNum]: bucketCurrent,
+       // Save new bucket (with card added_
+       [LS_BUCKET + bucketNum]: bucketNew,
+       // Save latest card statistics
+       [currentCard.id]: cardStats,
+       // Save last asked
+       [LS_LASTASKED]: (new Date()).getTime()
+      });
   
   // Show stuff
   getById('back-result').style.backgroundColor = color;
@@ -315,19 +325,19 @@ function showAnswer(e) {
   hideAll();
   getById('back').style.display = 'block';
   getById('statslink').style.display = 'block';
-  chrome.browserAction.setBadgeText({text: ''});
+  chrome.action.setBadgeText({text: ''});
 }
 
-function showStats() {
+async function showStats() {
   // Get a local copy of buckets
   var buckets = [];
-  for (var i = 0; i < 5; i++) {
-    buckets[i] = get(LS_BUCKET + (i+1));
+  for (let i = 0; i < 5; i++) {
+    buckets[i] = await get(LS_BUCKET + (i+1));
   }
   
   // Go through bucket 1, figure out how many are unanswered
   var numUnasked = 0;
-  for (var i = (buckets[0].length -1); i >= 0; i--) {
+  for (let i = (buckets[0].length -1); i >= 0; i--) {
     if (buckets[0][i].lastAsked == 0) {
       numUnasked++;
       buckets[0].splice(i, 1);
@@ -341,7 +351,6 @@ function showStats() {
     numAsked += buckets[i].length;
   }
   
-  var width1
   var chartUrl = 'https://chart.googleapis.com/chart?cht=bhs&chs=200x140&chd=t:' + bucketLengths.join(',') + '&chco=FF0000|ff9c00|ffea00|ccff00|0ade00&chm=N,000000,0,-1,11';
   
   getById('stats-unasked-note').style.display = 'none';
@@ -360,9 +369,9 @@ function showStats() {
   getById('cardlink').style.display = 'block';
 }
 
-function showOptions() {
+async function showOptions() {
   var modeOptions = getById('options').getElementsByTagName('input');
-  var currentMode = get(LS_MODE);
+  var currentMode = await get(LS_MODE);
   for (var i = 0; i < modeOptions.length; i++) {
     modeOptions[i].onclick = changeMode;
     if (modeOptions[i].value == currentMode) {
@@ -375,15 +384,15 @@ function showOptions() {
   getById('footer-cancellink').style.display = 'block';
 }
 
-function init() {
+async function init() {
   getById('footer').style.display = 'block';
   
-  if (!get(LS_INIT)) {
+  if (!(await get(LS_INIT))) {
     initBuckets();
   }
   
-  if(!get(LS_MODE)) {
-    set(LS_MODE, 'multiple-choice');
+  if(!(await get(LS_MODE))) {
+    set({[LS_MODE]: 'multiple-choice'});
   }
   
   for (var i = 0; i < CARDS_DATA.length; i++) {
@@ -399,28 +408,27 @@ function init() {
     cardsCategories[datum.category].push(datum.id);
   }
   
-  showNextCard();
+  await showNextCard();
   
-  document.onkeyup = function(e) {
-    var e=window.event || e;
+  document.onkeyup = async function(e) {
     if (getById('back').style.display == 'block') {
       if (e.keyCode == 78 || e.keyCode == 32 || e.keyCode == 13) {
         showNextCard();
-        set(LS_SPACEPRESSED, 'true');
+        set({[LS_SPACEPRESSED]: 'true'});
         return;
       }
     }
     
     if (getById('front').style.display == 'block') {
-      if (get(LS_MODE)=='multiple-choice') {
+      if (await get(LS_MODE) == 'multiple-choice') {
         if (e.keyCode == 49) { // 1
-          set(LS_NUMPRESSED, 'true');
+          set({[LS_NUMPRESSED]: 'true'});
           getById('front-button1').onclick({target:getById('front-button1')});
         } else if (e.keyCode == 50) { // 2
-          set(LS_NUMPRESSED, 'true');
+          set({[LS_NUMPRESSED]: 'true'});
           getById('front-button2').onclick({target:getById('front-button2')});
         } else if (e.keyCode == 51) { // 3
-          set(LS_NUMPRESSED, 'true');
+          set({[LS_NUMPRESSED]: 'true'});
           getById('front-button3').onclick({target:getById('front-button3')});
         }
       } else {
@@ -439,4 +447,3 @@ function init() {
 }
 
 init();
-     

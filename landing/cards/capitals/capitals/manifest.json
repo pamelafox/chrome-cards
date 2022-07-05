@@ -1,6 +1,6 @@
 {
   "name": "QuizCards: World Capitals",
-  "version": "0.99",
+  "version": "1.0",
   "manifest_version": 2,
   "description": "Use these interactive browser-based flash cards to easily learn the world capitals.",
   "permissions": ["tabs"],

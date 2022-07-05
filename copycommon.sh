@@ -2,7 +2,7 @@
 
 declare -a files=( "background.js" "popup.js" "popup.html" "smiley.png" "frowney.png" "util.js");
 
-basefolder="/Users/pamelafox/Dropbox/chrome-cards"
+basefolder="."
 appfolder="$basefolder/landing/cards"
 
 function copyfolder {

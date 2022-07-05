@@ -1,3 +1,4 @@
+node_modules/
 **/background.html
 **/popup.html
 **/smiley.png

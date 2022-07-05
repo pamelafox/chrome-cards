@@ -1,0 +1,23 @@
+{
+  "name": "chrome-cards",
+  "version": "1.0.0",
+  "description": "Chrome browser extensions flash cards",
+  "main": "popup.js",
+  "scripts": {
+    "lint": "eslint 'popup.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pamelafox/chrome-cards.git"
+  },
+  "author": "Pamela Fox",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/pamelafox/chrome-cards/issues"
+  },
+  "homepage": "https://github.com/pamelafox/chrome-cards#readme",
+  "devDependencies": {
+    "eslint": "^8.19.0",
+    "eslint-config-google": "^0.14.0"
+  }
+}
