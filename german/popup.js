@@ -306,6 +306,7 @@ async function showAnswer(e) {
     getById('back-info').style.float = 'left';
     getById('back-info').style.width = '250px';
     getById('back-img').src = cardData.answerimage;
+    getById('back-attribution').innerHTML = cardData.attribution || '';
     getById('back-img').style.display = 'block';
     if (cardData.answerimagelink) {
       getById('back-img').onclick = function() { 

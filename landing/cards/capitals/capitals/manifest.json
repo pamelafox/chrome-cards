@@ -1,18 +1,21 @@
 {
   "name": "QuizCards: World Capitals",
-  "version": "1.0",
-  "manifest_version": 2,
+  "version": "3.0.0",
+  "manifest_version": 3,
   "description": "Use these interactive browser-based flash cards to easily learn the world capitals.",
-  "permissions": ["tabs"],
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
   "background": {
-    "persistent": true,
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
   "icons": { 
-            "128": "icon_128.png" },
-  "browser_action": {
-      "default_title": "Show the next flash card!",
-      "default_icon": "browser_icon.png",
-      "default_popup": "popup.html"
+    "128": "icon_128.png" 
+  },
+  "action": {
+    "default_title": "Show the next flash card!",
+    "default_icon": "browser_icon.png",
+    "default_popup": "popup.html"
   }
 }

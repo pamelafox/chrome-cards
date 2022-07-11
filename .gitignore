@@ -1,5 +1,6 @@
 node_modules/
 .DS_Store
+env/
 **/background.html
 **/popup.html
 **/smiley.png
